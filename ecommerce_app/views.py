@@ -1,20 +1,39 @@
 from django.shortcuts import render
-from rest_framework.mixins import CreateModelMixin, UpdateModelMixin, RetrieveModelMixin
+from rest_framework.mixins import CreateModelMixin, UpdateModelMixin, RetrieveModelMixin, DestroyModelMixin
 from rest_framework.viewsets import GenericViewSet
-from .models import Customer
-from .serializers import CustomerSerializer
+from .models import Customer, Product
+from .serializers import CustomerSerializer, ProductSerializer
+from .permissions import IsAdminOrReadOnly
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.viewsets import ModelViewSet
+from rest_framework import status
 # Create your views here.
 
-class CustomerViewSetAPI(CreateModelMixin, UpdateModelMixin, RetrieveModelMixin, GenericViewSet):
+
+class ProductViewSet(ModelViewSet):
+
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = [IsAdminOrReadOnly]
+   
+
+    def get_serializer_context(self):
+        return {'request': self.request}
+
+
+
+
+
+
+class CustomerViewSetAPI(GenericViewSet):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
 
-    @action(detail=False, methods=['GET','PUT'])
+    @action(detail=False, methods=['GET','PUT','DELETE'], permission_classes=[IsAuthenticated])
     def me(self,request):
         (customer,created) = Customer.objects.get_or_create(user_id=request.user.id)
         if request.method == 'GET':
@@ -25,3 +44,6 @@ class CustomerViewSetAPI(CreateModelMixin, UpdateModelMixin, RetrieveModelMixin,
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
+        elif request.method == 'DELETE':
+            customer.delete()
+            return Response({'message': 'Customer deleted successfully'}, status=status.HTTP_204_NO_CONTENT)

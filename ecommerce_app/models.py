@@ -7,16 +7,13 @@ from django.utils.text import slugify
 class Product(models.Model):
     title = models.CharField(max_length=255)
     slug= models.SlugField(null=True, blank=True)
-
-   
     description = models.TextField(null=True, blank=True)
     unit_price = models.DecimalField(max_digits=6,decimal_places=2,validators=[MinValueValidator(1)])
-    inventory = models.IntegerField(validators=[MinValueValidator(0)])
     last_update = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name)
+            self.slug = slugify(self.title)
             super().save(*args, **kwargs)
 
     def __str__(self):
@@ -30,9 +27,7 @@ class Customer(models.Model):
     
 
     def __str__(self):
-        # return f'{self.user.first_name} {self.user.last_name}'
-    
-        return "something"
+        return f'Customer {self.id}'
 
 class Order(models.Model):
     
