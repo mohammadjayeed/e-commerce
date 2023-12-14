@@ -59,7 +59,13 @@ class CartItem(models.Model):
         unique_together = [['cart', 'product']]
 
 
+from django.contrib.auth.models import User
+
 class Review(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)  
     description = models.TextField()
     date = models.DateField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('product', 'customer')
