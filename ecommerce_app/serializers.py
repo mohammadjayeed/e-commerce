@@ -1,8 +1,9 @@
 from rest_framework import serializers
-from .models import Product, Customer, Review, Cart, CartItem
+from .models import Product, Customer, Review, Cart, CartItem, Order, OrderItem
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
+from django.db import transaction
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
@@ -68,6 +69,7 @@ class AddCartItemSerializer(serializers.ModelSerializer):
         quantity = self.validated_data['quantity']
 
         try:
+            
             cart_item = CartItem.objects.get(cart_id=cart_id, product_id=product_id)
             cart_item.quantity += quantity
             cart_item.save()
@@ -103,3 +105,61 @@ class CartSerializer(serializers.ModelSerializer):
         model = Cart
         fields = ['id','items','total_cart_price']
 
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    product = CustomProductInCartSerializer()
+
+    class Meta:
+        model = OrderItem
+        fields = ['id', 'product', 'unit_price', 'quantity']
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True)
+    class Meta:
+        model = Order
+        fields = ['id','customer','placed_at','status','items']
+
+class CreateOrderSerializer(serializers.Serializer):
+    cart_id = serializers.UUIDField()
+
+
+    # Checking if the cart id is a valid cart id by checking the database
+    # Also checking if the cart is empty in the second if statement
+    def validate_cart_id(self, cart_id):
+        if not Cart.objects.filter(pk=cart_id).exists():
+            raise serializers.ValidationError('Cart ID was not found.')
+        if CartItem.objects.filter(cart_id=cart_id).count() == 0:
+            raise serializers.ValidationError('Empty Cart.')
+        return cart_id
+    
+
+    def save(self, **kwargs):
+
+        with transaction.atomic():
+            cart_id = self.validated_data['cart_id']
+            customer = Customer.objects.get(user_id=self.context['user_id'])
+            order = Order.objects.create(customer=customer)
+
+            cart_items = CartItem.objects.select_related('product').filter(cart_id=cart_id)
+            order_items = [
+                OrderItem(
+                    order=order,
+                    product=item.product,
+                    unit_price=item.product.unit_price,
+                    quantity=item.quantity
+                ) for item in cart_items
+            ]
+            OrderItem.objects.bulk_create(order_items)
+
+            # Deleting cart object for successfully placed order
+            Cart.objects.filter(pk=cart_id).delete()
+
+            # purpose of this order return is to manipulate it further in the createmodelmixin and thus generating proper
+            # reponse to be sent to the client
+            return order
+
+class UpdateOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ['payment_status']
