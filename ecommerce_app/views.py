@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from rest_framework.mixins import CreateModelMixin, UpdateModelMixin, RetrieveModelMixin, DestroyModelMixin
 from rest_framework.viewsets import GenericViewSet
-from .models import Customer, Product, Review
-from .serializers import CustomerSerializer, ProductSerializer, ReviewSerializer
+from .models import Customer, Product, Review, Cart, CartItem
+from .serializers import CustomerSerializer, ProductSerializer, ReviewSerializer, CartSerializer, CartItemSerializer
 from .permissions import IsAdminOrReadOnly
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -63,3 +63,14 @@ class ReviewViewSet(ModelViewSet):
         
         customer = Customer.objects.get(user_id=self.request.user.id)
         return {'product_id': self.kwargs['product_pk'], 'customer_id':customer.id}
+    
+class CartViewSet(CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, GenericViewSet):
+    queryset = Cart.objects.prefetch_related('items__product').all()
+    serializer_class = CartSerializer
+
+class CartItemViewSet(ModelViewSet):
+    
+    serializer_class = CartItemSerializer
+
+    def get_queryset(self):
+        return CartItem.objects.filter(cart_id=self.kwargs['cart_pk']).select_related('product')
