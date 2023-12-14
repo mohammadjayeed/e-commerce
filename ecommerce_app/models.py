@@ -6,15 +6,18 @@ from django.utils.text import slugify
 
 class Product(models.Model):
     title = models.CharField(max_length=255)
-    slug= models.SlugField(null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     unit_price = models.DecimalField(max_digits=6,decimal_places=2,validators=[MinValueValidator(1)])
+    inventory = models.IntegerField(validators=[MinValueValidator(0)], editable=True)
     last_update = models.DateTimeField(auto_now=True)
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.title)
-            super().save(*args, **kwargs)
+    def inventory_update(self, inventory):
+        """
+        Update the product inventory.
+
+        """
+        self.inventory = inventory
+        self.save()
 
     def __str__(self):
         return self.title

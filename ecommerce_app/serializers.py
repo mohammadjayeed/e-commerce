@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from django.db import transaction
+from django.db.models import F
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
@@ -69,7 +70,13 @@ class AddCartItemSerializer(serializers.ModelSerializer):
         quantity = self.validated_data['quantity']
 
         try:
+            product = Product.objects.get(id=product_id)
+            inventory_check = product.inventory - quantity 
             
+
+            if inventory_check < 0:
+                raise ValidationError('Desired quantity not present in stock')
+
             cart_item = CartItem.objects.get(cart_id=cart_id, product_id=product_id)
             cart_item.quantity += quantity
             cart_item.save()
@@ -142,14 +149,24 @@ class CreateOrderSerializer(serializers.Serializer):
             order = Order.objects.create(customer=customer)
 
             cart_items = CartItem.objects.select_related('product').filter(cart_id=cart_id)
-            order_items = [
-                OrderItem(
+
+
+            order_items = []
+            for item in cart_items:
+                order_item = OrderItem(
                     order=order,
                     product=item.product,
                     unit_price=item.product.unit_price,
                     quantity=item.quantity
-                ) for item in cart_items
-            ]
+                )
+                
+                
+
+                Product.objects.get(pk=item.product.id).inventory_update(inventory=F('inventory') - (item.product.inventory- item.quantity))
+
+                order_items.append(order_item)
+
+
             OrderItem.objects.bulk_create(order_items)
 
             # Deleting cart object for successfully placed order

@@ -28,13 +28,8 @@ class ProductViewSet(ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
    
 
-    def get_serializer_context(self):
-        return {'request': self.request}
-
-
-
-
-
+    # def get_serializer_context(self):
+    #     return {'request': self.request}
 
 class CustomerViewSetAPI(GenericViewSet):
     queryset = Customer.objects.all()
