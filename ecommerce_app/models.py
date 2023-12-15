@@ -2,7 +2,9 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from uuid import uuid4
 from django.contrib.auth.models import User
-from django.utils.text import slugify
+
+
+
 
 class Product(models.Model):
     title = models.CharField(max_length=255)
@@ -25,9 +27,8 @@ class Product(models.Model):
 class Customer(models.Model):
     
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    phone = models.CharField(max_length=255,null=True, blank=True)
+    phone = models.CharField(max_length=255, null=True, blank=True)
     birth_date = models.DateField(null=True, blank=True)
-    
 
     def __str__(self):
         return f'Customer {self.id}'
@@ -69,8 +70,6 @@ class CartItem(models.Model):
     class Meta:
         unique_together = ('cart', 'product')
 
-
-from django.contrib.auth.models import User
 
 class Review(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')

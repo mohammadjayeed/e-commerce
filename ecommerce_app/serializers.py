@@ -179,4 +179,4 @@ class CreateOrderSerializer(serializers.Serializer):
 class UpdateOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
-        fields = ['payment_status']
+        fields = ['status']

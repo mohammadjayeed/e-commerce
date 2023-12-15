@@ -26,6 +26,7 @@ class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [IsAdminOrReadOnly]
+    lookup_field = 'pk'
    
 
     # def get_serializer_context(self):
