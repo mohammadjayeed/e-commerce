@@ -1,7 +1,7 @@
 
 ## Language
 
-- Python v3.9.13
+- Python v3.10.12
 
 ## Framework
 
