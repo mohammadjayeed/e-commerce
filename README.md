@@ -11,7 +11,7 @@
 
 ## Installation
 ## Step 1 - Download and Install Python
-- Download python v3.9.13
+- Download python v3.10.12
 - Run the executable file as an administrator
 - Add python path to environment variables
 ## Step 2 - Repository
