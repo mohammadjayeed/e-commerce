@@ -11,6 +11,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
 from rest_framework.permissions import BasePermission, IsAdminUser
+from django.core.exceptions import ValidationError
 # Create your views here.
 
 
@@ -77,8 +78,8 @@ class ReviewViewSet(ModelViewSet):
     def get_serializer_context(self):
         try:
             customer = Customer.objects.get(user_id=self.request.user.id)
-        except Customer.DoesNotExist:
-            return
+        except:
+            return {'product_id': self.kwargs['product_pk'], 'customer_id':0}
         return {'product_id': self.kwargs['product_pk'], 'customer_id':customer.id}
     
 class CartViewSet(CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, GenericViewSet):

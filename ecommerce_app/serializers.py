@@ -35,10 +35,12 @@ class ReviewSerializer(serializers.ModelSerializer):
         # print(product_id)
         # print(customer_id)
         # print(Review.objects.filter(product_id=product_id, customer_id=customer_id).exists())
+        if not customer_id:
+           raise ValidationError(detail={'review_status': ['User not authorized to perform this action']})
         if Review.objects.filter(product_id=product_id, customer_id=customer_id).exists():
             raise ValidationError(detail={'review_status': ['Already reviewed by user']})
         return Review.objects.create(product_id=product_id, customer_id=customer_id, **validated_data)
-    
+
 class CustomProductInCartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
