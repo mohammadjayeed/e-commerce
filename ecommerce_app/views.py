@@ -4,7 +4,7 @@ from rest_framework.viewsets import GenericViewSet
 from .models import Customer, Product, Review, Cart, CartItem, Order
 from .serializers import (CustomerSerializer, ProductSerializer, ReviewSerializer, CartSerializer, CartItemSerializer, 
 AddCartItemSerializer, UpdateCartItemSerializer, OrderSerializer, CreateOrderSerializer, UpdateOrderSerializer)
-from .permissions import IsAdminOrReadOnly, ReviewOwnerOrAdmin
+from .permissions import IsAdminOrReadOnly, ReviewOwnerOrAdminOrReadOnly
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -61,11 +61,12 @@ class ReviewViewSet(ModelViewSet):
     A single user cannot review the same product multiple times
 
 
-    Only authenticated customers can perform this particular action
+    Only authenticated customers can perform actions or else
+    anonymous users can view only
 
     """
     serializer_class = ReviewSerializer
-    permission_classes = [ReviewOwnerOrAdmin]
+    permission_classes = [ReviewOwnerOrAdminOrReadOnly]
     
 
     def get_queryset(self):
@@ -74,8 +75,10 @@ class ReviewViewSet(ModelViewSet):
     
 
     def get_serializer_context(self):
-
-        customer = Customer.objects.get(user_id=self.request.user.id)
+        try:
+            customer = Customer.objects.get(user_id=self.request.user.id)
+        except Customer.DoesNotExist:
+            return
         return {'product_id': self.kwargs['product_pk'], 'customer_id':customer.id}
     
 class CartViewSet(CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, GenericViewSet):
