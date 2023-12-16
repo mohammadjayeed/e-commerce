@@ -4,12 +4,13 @@ from rest_framework.viewsets import GenericViewSet
 from .models import Customer, Product, Review, Cart, CartItem, Order
 from .serializers import (CustomerSerializer, ProductSerializer, ReviewSerializer, CartSerializer, CartItemSerializer, 
 AddCartItemSerializer, UpdateCartItemSerializer, OrderSerializer, CreateOrderSerializer, UpdateOrderSerializer)
-from .permissions import IsAdminOrReadOnly
+from .permissions import IsAdminOrReadOnly, ReviewOwnerOrAdmin
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
+from rest_framework.permissions import BasePermission, IsAdminUser
 # Create your views here.
 
 
@@ -28,9 +29,6 @@ class ProductViewSet(ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
     lookup_field = 'pk'
    
-
-    # def get_serializer_context(self):
-    #     return {'request': self.request}
 
 class CustomerViewSetAPI(GenericViewSet):
     queryset = Customer.objects.all()
@@ -55,7 +53,6 @@ class CustomerViewSetAPI(GenericViewSet):
         
 
 class ReviewViewSet(ModelViewSet):
-
     """
     API View function :
     
@@ -67,9 +64,9 @@ class ReviewViewSet(ModelViewSet):
     Only authenticated customers can perform this particular action
 
     """
-
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [ReviewOwnerOrAdmin]
+    
 
     def get_queryset(self):
 
