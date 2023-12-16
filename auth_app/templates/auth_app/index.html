@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: #333;
+        }
+
+        table {
+            text-align: left;
+            line-height: 40px;
+            border-collapse: separate;
+            border-spacing: 0;
+            border: 2px solid #ed1c40;
+            width: 500px;
+            margin: 50px auto;
+            border-radius: .25rem;
+        }
+
+        thead tr:first-child {
+            background: red;
+            color: #fff;
+            border: none;
+        }
+
+        th:first-child,
+        td:first-child {
+            padding: 0 15px 0 20px;
+        }
+
+        th {
+            font-weight: 500;
+        }
+
+        thead tr:last-child th {
+            border-bottom: 3px solid #ddd;
+        }
+
+        tbody tr:hover {
+            background-color: #f2f2f2;
+            cursor: default;
+        }
+
+        tbody tr:last-child td {
+            border: none;
+        }
+
+        tbody td {
+            border-bottom: 1px solid #ddd;
+        }
+
+        td:last-child {
+            text-align: right;
+            padding-right: 10px;
+        }
+
+        /* Added CSS for the link */
+        a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <thead>
+            <tr>
+                <!-- Wrapped the text with <a> tag to create a link -->
+                    <th colspan="3">
+                        <a href="https://documenter.getpostman.com/view/20444054/2s9Ykn7gwX" target="_blank">Postman Documentation &lt;&lt;please click me</a>
+                    </th>
+                    
+            </tr>
+            <tr>
+                <th style="color: #000;">#</th>
+                <th colspan="2"><a href="http://65.0.106.154/shop" target="_blank" style="color: #000;">Api Root</a></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td></td>
+                <td>Please note some endpoints might not show up in the API root <a href="http://65.0.106.154/shop" style="color: #000;">link</a> due to my custom DRF implementation, but nonetheless all the endpoints are available via BROWSABLE API as well</td>
+                <td></td>
+            </tr>
+           {% comment %}  <tr>
+                <td>2</td>
+                <td>http://65.0.106.154/shop/carts/</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>http://65.0.106.154/shop/orders/</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td>http://65.0.106.154/shop/customers/me/</td>
+                <td></td>
+            </tr>
+            {% endcomment %}
+        </tbody> 
+    </table>
+</body>
+</html>

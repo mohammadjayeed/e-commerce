@@ -10,6 +10,22 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = '__all__'
+    
+    def create(self, validated_data):
+        
+        if Product.objects.filter(title=validated_data['title']).exists():
+            raise serializers.ValidationError('Product with this title already exists.')
+        
+
+        # Call the original create method
+        return super().create(validated_data)
+    
+    def update(self, instance, validated_data):
+        if 'title' in validated_data and Product.objects.exclude(pk=instance.pk).filter(title=validated_data['title']).exists():
+            raise serializers.ValidationError('Product with this title already exists.')
+        
+        # Call the original update method
+        return super().update(instance, validated_data)
 
 
 class CustomerSerializer(serializers.ModelSerializer):
