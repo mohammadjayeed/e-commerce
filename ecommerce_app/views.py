@@ -123,6 +123,13 @@ class OrderViewSet(ModelViewSet):
         serializer = OrderSerializer(order)
         return Response(serializer.data)
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        try:
+            self.perform_destroy(instance)
+        except Exception as e:
+            return Response({'error': 'Order has associated ordered items, please delete them first from the admin panel'}, status=status.HTTP_400_BAD_REQUEST)
+        
     def get_serializer_class(self):
 
         if self.request.method == 'POST':
