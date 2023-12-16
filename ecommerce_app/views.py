@@ -127,6 +127,7 @@ class OrderViewSet(ModelViewSet):
         instance = self.get_object()
         try:
             self.perform_destroy(instance)
+            return Response({'success': 'Order deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response({'error': 'Order has associated ordered items, please delete them first from the admin panel'}, status=status.HTTP_400_BAD_REQUEST)
         
