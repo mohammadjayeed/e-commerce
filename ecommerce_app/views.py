@@ -17,8 +17,7 @@ from django.core.exceptions import ValidationError
 
 class ProductViewSet(ModelViewSet):
     """
-    API View function :
-    
+  
     This viewset provides `list`, `create`, `retrieve`,
     `update`, and `destroy` actions.
 
@@ -55,15 +54,11 @@ class CustomerViewSetAPI(GenericViewSet):
 
 class ReviewViewSet(ModelViewSet):
     """
-    API View function :
     
     This viewset provides per customer - single review uniqueness. 
     A single product can be reviewed multiples times by different users.
     A single user cannot review the same product multiple times
 
-
-    Only authenticated customers can perform actions or else
-    anonymous users can view only
 
     """
     serializer_class = ReviewSerializer
@@ -83,6 +78,10 @@ class ReviewViewSet(ModelViewSet):
         return {'product_id': self.kwargs['product_pk'], 'customer_id':customer.id}
     
 class CartViewSet(CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, GenericViewSet):
+    """
+    An open cart for placing orders with 128 bit UUID
+    
+    """
 
     queryset = Cart.objects.prefetch_related('items__product').all()
     serializer_class = CartSerializer
@@ -105,7 +104,11 @@ class CartItemViewSet(ModelViewSet):
         return {'cart_id': self.kwargs['cart_pk']}
     
 class OrderViewSet(ModelViewSet):
-    
+    """
+    Order endpoint open to customers.
+    Customers can place orders , checkup on
+    his own order. Only Admins can modify Orders
+    """
     
     http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
 
@@ -123,6 +126,9 @@ class OrderViewSet(ModelViewSet):
         serializer = OrderSerializer(order)
         return Response(serializer.data)
 
+    # Order can be deleted from the admin panel after associated order items have been deleted. 
+    # The destroy method which exists in one of the parent classes of ModelViewSet. Here we are
+    # modifying the method in order to achieve our desired outcome.
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         try:

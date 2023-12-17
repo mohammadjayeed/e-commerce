@@ -13,18 +13,21 @@ class ProductSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         
+        # Check for no two objects with the same name can be created
         if Product.objects.filter(title=validated_data['title']).exists():
             raise serializers.ValidationError('Product with this title already exists.')
         
 
-        # Call the original create method
+        # Calling the original create method
         return super().create(validated_data)
     
     def update(self, instance, validated_data):
+
+        # Check for name duplicacy
         if 'title' in validated_data and Product.objects.exclude(pk=instance.pk).filter(title=validated_data['title']).exists():
             raise serializers.ValidationError('Product with this title already exists.')
         
-        # Call the original update method
+        # Calling the original update method
         return super().update(instance, validated_data)
 
 
@@ -48,11 +51,11 @@ class ReviewSerializer(serializers.ModelSerializer):
         product_id = self.context['product_id']
         customer_id= self.context['customer_id']
         
-        # print(product_id)
-        # print(customer_id)
-        # print(Review.objects.filter(product_id=product_id, customer_id=customer_id).exists())
+        # Check for anonymous user which is set to 0 and then passed to serializer context
         if not customer_id:
            raise ValidationError(detail={'review_status': ['User not authorized to perform this action']})
+        
+        # Check for uniqueness of review and user
         if Review.objects.filter(product_id=product_id, customer_id=customer_id).exists():
             raise ValidationError(detail={'review_status': ['Already reviewed by user']})
         return Review.objects.create(product_id=product_id, customer_id=customer_id, **validated_data)
@@ -77,6 +80,7 @@ class CartItemSerializer(serializers.ModelSerializer):
 class AddCartItemSerializer(serializers.ModelSerializer):
     product_id = serializers.IntegerField()
 
+    # Validation of product id that is to be added to the cart
     def validate_product_id(self, value):
         if not Product.objects.filter(pk=value).exists():
             raise serializers.ValidationError('No product with the id exists.')
@@ -91,6 +95,7 @@ class AddCartItemSerializer(serializers.ModelSerializer):
         quantity = self.validated_data['quantity']
 
         try:
+            # Inventory check
             product = Product.objects.get(id=product_id)
             inventory_check = product.inventory - quantity 
             
@@ -98,6 +103,7 @@ class AddCartItemSerializer(serializers.ModelSerializer):
             if inventory_check < 0:
                 raise ValidationError('Desired quantity not present in stock')
 
+            # If an item exists in the cart already, it increases the quantity of the cart item
             cart_item = CartItem.objects.get(cart_id=cart_id, product_id=product_id)
             cart_item.quantity += quantity
             cart_item.save()
@@ -126,6 +132,7 @@ class CartSerializer(serializers.ModelSerializer):
     items = CartItemSerializer(many=True,read_only=True)
     total_cart_price = serializers.SerializerMethodField()
 
+    # method for calculating all the cart items in the cart
     def get_total_cart_price(self, cart):
         return sum([item.quantity * item.product.unit_price for item in cart.items.all()])
 
@@ -153,7 +160,7 @@ class CreateOrderSerializer(serializers.Serializer):
 
 
     # Checking if the cart id is a valid cart id by checking the database
-    # Also checking if the cart is empty in the second if statement
+    # Also checking if the cart is empty in the second 'if' statement
     def validate_cart_id(self, cart_id):
         if not Cart.objects.filter(pk=cart_id).exists():
             raise serializers.ValidationError('Cart ID was not found.')

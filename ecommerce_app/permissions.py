@@ -9,11 +9,12 @@ class IsAdminOrReadOnly(permissions.BasePermission):
 
 class ReviewOwnerOrAdminOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        # Allow admin users to perform any action
+        # Allowing admin users to perform any action
         if request.user.is_staff or request.user.is_superuser:
             return True
+        # Allowing read access for unauthorized users
         elif request.method in permissions.SAFE_METHODS:
             return True
             
-         # Allow review owner to perform actions on their own review
+         # Allowing review owner to perform actions on their own review
         return obj.customer.user == request.user
