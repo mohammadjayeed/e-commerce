@@ -1,12 +1,11 @@
-version: "3.8"
+version: '3.8'
 services:
   app:
     build: .
     volumes:
       - .:/code
-      - ./logs:/logs
     ports:
       - 8000:8000
     image: app:code
     container_name: drf_ecommerce
-    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py createsuperuser --noinput && python manage.py runserver 0.0.0.0:8000"
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"

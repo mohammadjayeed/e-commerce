@@ -12,8 +12,25 @@
 - Django v4.2
 - Djangorestframework v3.14.0
 
+## Docker Installation
+- Make sure you have docker installed on your machine
+- Clone the [repository](https://github.com/mohammadjayeed/e-commerce.git)
+- From the terminal, input these commands:
+```bash
+  docker-compose build
+  docker-compose up
+```
+- Finally create a superuser (if you need to create one) with the following commands:
+```bash
+  docker exec -it drf_ecommerce /bin/bash
+  A prompt will show up. Type:
+```
+```bash
+  python manage.py createsuperuser
+```
+- You can now access localhost:8000 to check the running project
 
-## Installation
+## Local Installation
 ## Step 1 - Download and Install Python
 - Download python v3.10.12
 - Run the executable file as an administrator
